@@ -122,6 +122,72 @@ NavMeshSettings:
     debug:
       m_Flags: 0
   m_NavMeshData: {fileID: 0}
+--- !u!1 &428229147
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 428229149}
+  - component: {fileID: 428229148}
+  m_Layer: 0
+  m_Name: Video Player
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!328 &428229148
+VideoPlayer:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 428229147}
+  m_Enabled: 1
+  m_VideoClip: {fileID: 32900000, guid: 150eb6484a0017142858d2d38a68199d, type: 3}
+  m_TargetCameraAlpha: 1
+  m_TargetCamera3DLayout: 0
+  m_TargetCamera: {fileID: 1482195895}
+  m_TargetTexture: {fileID: 0}
+  m_TimeReference: 0
+  m_TargetMaterialRenderer: {fileID: 0}
+  m_TargetMaterialProperty: <noninit>
+  m_RenderMode: 1
+  m_AspectRatio: 2
+  m_DataSource: 0
+  m_TimeUpdateMode: 2
+  m_PlaybackSpeed: 1
+  m_AudioOutputMode: 2
+  m_TargetAudioSources: []
+  m_DirectAudioVolumes: []
+  m_Url: 
+  m_EnabledAudioTracks: 
+  m_DirectAudioMutes: 
+  m_ControlledAudioTrackCount: 0
+  m_PlayOnAwake: 1
+  m_SkipOnDrop: 1
+  m_Looping: 0
+  m_WaitForFirstFrame: 1
+  m_FrameReadyEventEnabled: 0
+  m_VideoShaders: []
+--- !u!4 &428229149
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 428229147}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 6.9740176, y: 3.2165933, z: -0.0028108598}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &632405325
 GameObject:
   m_ObjectHideFlags: 0
@@ -222,6 +288,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   myKnotName: kliknieto_fogga
   dialogueSystem: {fileID: 1246476859}
+  objectName: 
+  isChecked: 0
 --- !u!70 &632405329
 CapsuleCollider2D:
   m_ObjectHideFlags: 0
@@ -389,12 +457,12 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   dialogueBox: {fileID: 753102073}
   choicesContainer: {fileID: 1628840219}
+  allActiveItems: []
   inkJSONAsset: {fileID: 4900000, guid: 95b6935a8941ecf42bb70f0c2747bbd5, type: 3}
   cutScene: 0
   canvas: {fileID: 1246476862}
   textPrefab: {fileID: 11456674, guid: 1aab6ef84d87c416f8f0b3e1ef3d77d2, type: 3}
   buttonPrefab: {fileID: 11455116, guid: 37c108a6c38964f79a6621eccb33ddc1, type: 3}
-  sceneObjects: []
 --- !u!114 &1246476860
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -852,7 +920,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!224 &2033201664
 RectTransform:
   m_ObjectHideFlags: 0
@@ -974,6 +1042,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   myKnotName: kliknieto_obraz
   dialogueSystem: {fileID: 1246476859}
+  objectName: 
+  isChecked: 0
 --- !u!61 &2033981992
 BoxCollider2D:
   m_ObjectHideFlags: 0
@@ -1030,7 +1100,7 @@ GameObject:
   - component: {fileID: 2119376196}
   m_Layer: 5
   m_Name: InteractiveElements
-  m_TagString: Untagged
+  m_TagString: InteractiveElements
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -1063,3 +1133,4 @@ SceneRoots:
   - {fileID: 2009679605}
   - {fileID: 1949950326}
   - {fileID: 1246476863}
+  - {fileID: 428229149}

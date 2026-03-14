@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Linq;
 using Ink.Runtime;
 using UnityEngine;
 using UnityEngine.UI;
@@ -11,9 +12,15 @@ public class BasicInkExample : MonoBehaviour {
 	public GameObject dialogueBox;
 	public GameObject choicesContainer; 
 	private bool clickedThisFrame = false;
+	public List<ClickableItem> allActiveItems = new List<ClickableItem>();
 
     void Awake () {
-		// Remove the default message
+		// GameObject[] scenesToHide = GameObject.FindGameObjectsWithTag("InteractiveElements");
+
+	    // foreach (GameObject scene in scenesToHide) {
+    	//     scene.SetActive(false);
+	    // }
+
 		RemoveChildren();
 		StartStory();
 	}
@@ -21,14 +28,14 @@ public class BasicInkExample : MonoBehaviour {
 	// Creates a new Story object with the compiled story which we can then play!
 	void StartStory () { 
 		story = new Story (inkJSONAsset.text);
-		// story.BindExternalFunction("pokazObiekt", (string nazwa) => {
-    	// 	foreach(var item in allSceneObjects) {
-        // 		if(item.name == nazwa) {
-        //     		item.prefab.SetActive(true);
-		//         }
-    	// 	}
-		// });
+		story.BindExternalFunction("showObjects", (string name) => {
+            ManageObject(name, true);
+        });
+		story.BindExternalFunction("hideObjects", (string name) => {
+            ManageObject(name, false);
+        });
         if(OnCreateStory != null) OnCreateStory(story);
+		AdvanceStory();
 	}
 	
 	void Update() {	
@@ -47,42 +54,57 @@ public class BasicInkExample : MonoBehaviour {
 	    }
 	}
 
-void LateUpdate() {
-    clickedThisFrame = false;
-}
+	void LateUpdate() {
+    	clickedThisFrame = false;
+	}
 
-void AdvanceStory() {
-	dialogueBox.SetActive(true);
-    RemoveChildren();
-    choicesShown = false;
-    
-    string text = story.Continue().Trim();
-    CreateContentView(text);
-}
 
-void ShowChoices() {
-    choicesShown = true;
-    
-	choicesContainer.transform.SetAsLastSibling();
+	void ManageObject(string name, bool action) {
+        GameObject[] allObjects = Resources.FindObjectsOfTypeAll<GameObject>();
 
-    foreach (Choice choice in story.currentChoices) {
-        Button button = CreateChoiceView(choice.text.Trim());
-        button.onClick.AddListener(() => OnClickChoiceButton(choice));
+        GameObject target = allObjects.FirstOrDefault(obj => obj.name == name);
+
+        if (target != null) {
+            target.SetActive(action);
+			FindAllItems();
+            Debug.Log("Success: " + name + " is now " + action);
+        } else {
+            Debug.LogError("Error: Could not find a GameObject named " + name);
+        }
     }
-}
 
-void OnClickChoiceButton(Choice choice) {
-    story.ChooseChoiceIndex(choice.index);
-    choicesShown = false;
+	void AdvanceStory() {
+		dialogueBox.SetActive(true);
+    	RemoveChildren();
+    	choicesShown = false;
     
-    AdvanceStory();
-}
+    	string text = story.Continue().Trim();
+    	CreateContentView(text);
+	}
 
-void CloseDialogue() {
-	RemoveChildren();
-	dialogueBox.SetActive(false);
-	choicesShown = false; 
-}
+	void ShowChoices() {
+    	choicesShown = true;
+	
+		choicesContainer.transform.SetAsLastSibling();
+
+    	foreach (Choice choice in story.currentChoices) {
+        	Button button = CreateChoiceView(choice.text.Trim());
+	        button.onClick.AddListener(() => OnClickChoiceButton(choice));
+    	}
+	}
+
+	void OnClickChoiceButton(Choice choice) {
+    	story.ChooseChoiceIndex(choice.index);
+    	choicesShown = false;
+    
+    	AdvanceStory();
+	}
+
+	void CloseDialogue() {
+		RemoveChildren();
+		dialogueBox.SetActive(false);
+		choicesShown = false; 
+	}
 
 	// Creates a textbox showing the the line of text
 	void CreateContentView (string text) {
@@ -132,6 +154,27 @@ void CloseDialogue() {
         }
     }
 
+	public void FindAllItems() {
+    	allActiveItems.Clear();
+
+    	allActiveItems = GameObject.FindObjectsOfType<ClickableItem>().ToList();
+
+    	Debug.Log("Znaleziono interaktywnych przedmiotów: " + allActiveItems.Count);
+	}
+
+	public void CheckProgress() {
+		bool allDone = true;
+		foreach (var item in allActiveItems) {
+			if(!item.isChecked) {
+				allDone = false;
+				break;
+			}
+		}
+		if (allDone) {
+			story.variablesState["all_checked"] = true;
+		}
+	}
+
 	[SerializeField]
 	private TextAsset inkJSONAsset = null;
 	public Story story;
@@ -147,12 +190,5 @@ void CloseDialogue() {
 	private Text textPrefab = null;
 	[SerializeField]
 	private Button buttonPrefab = null;
-
-	[System.Serializable]
-	public struct SceneObject {
-    	public string name;
-    	public GameObject prefab;
-	}
-	public List<GameObject> sceneObjects = new List<GameObject>();
 
 }
