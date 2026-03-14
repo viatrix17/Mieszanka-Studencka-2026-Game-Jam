@@ -7,11 +7,12 @@ using UnityEngine.UI;
 public class BasicInkExample : MonoBehaviour {
     public static event Action<Story> OnCreateStory;
 	private bool choicesShown = false;
+	public GameObject dialogueBox;
+	public GameObject choicesContainer; 
 
     void Awake () {
 		// Remove the default message
 		RemoveChildren();
-		choicesShown = false;
 		StartStory();
 	}
 
@@ -19,12 +20,11 @@ public class BasicInkExample : MonoBehaviour {
 	void StartStory () { 
 		story = new Story (inkJSONAsset.text);
         if(OnCreateStory != null) OnCreateStory(story);
-		Update();
+		AdvanceStory();
 	}
 	
-	void Update() {
-	
-    if (Input.GetMouseButtonDown(0)) {
+	void Update() {	
+		if (Input.GetMouseButtonDown(0)) {
         
         if (story.canContinue) {
             AdvanceStory();
@@ -32,15 +32,14 @@ public class BasicInkExample : MonoBehaviour {
         else if (story.currentChoices.Count > 0 && !choicesShown) {
             ShowChoices();
         }
-		else if (!story.canContinue && story.currentChoices.Count == 0 && !choicesShown) {
-            choicesShown = true; 
-
-    		CloseDialogue();
+		else if (!story.canContinue && story.currentChoices.Count == 0) {
+			CloseDialogue();
         }
     }
 }
 
 void AdvanceStory() {
+	dialogueBox.SetActive(true);
     RemoveChildren();
     choicesShown = false;
     
@@ -51,6 +50,8 @@ void AdvanceStory() {
 void ShowChoices() {
     choicesShown = true;
     
+	choicesContainer.transform.SetAsLastSibling();
+	
     foreach (Choice choice in story.currentChoices) {
         Button button = CreateChoiceView(choice.text.Trim());
         button.onClick.AddListener(() => OnClickChoiceButton(choice));
@@ -65,25 +66,23 @@ void OnClickChoiceButton(Choice choice) {
 }
 
 void CloseDialogue() {
-    RemoveChildren();
-    choicesShown = false;
+	RemoveChildren();
+	dialogueBox.SetActive(false);
+	choicesShown = false; 
 }
 
-void EnvironmentInteraction() {
-
-}
 	// Creates a textbox showing the the line of text
 	void CreateContentView (string text) {
 		Text storyText = Instantiate (textPrefab) as Text;
 		storyText.text = text;
-		storyText.transform.SetParent (canvas.transform, false);
+		storyText.transform.SetParent (dialogueBox.transform, false);
 	}
 
 	// Creates a button showing the choice text
 	Button CreateChoiceView (string text) {
 		// Creates the button from a prefab
 		Button choice = Instantiate (buttonPrefab) as Button;
-		choice.transform.SetParent (canvas.transform, false);
+		choice.transform.SetParent (choicesContainer.transform, false);
 		
 		// Gets the text from the button prefab
 		Text choiceText = choice.GetComponentInChildren<Text> ();
@@ -98,11 +97,18 @@ void EnvironmentInteraction() {
 
 	// Destroys all the children of this gameobject (all the UI)
 	void RemoveChildren () {
-		int childCount = canvas.transform.childCount;
-		for (int i = childCount - 1; i >= 0; --i) {
-			Destroy (canvas.transform.GetChild (i).gameObject);
-		}
-	}
+    // Czyścimy teksty bezpośrednio w dialogueBox
+    foreach (Transform child in dialogueBox.transform) {
+        // Nie usuwamy kontenera na przyciski!
+        if (child.gameObject != choicesContainer) {
+            Destroy(child.gameObject);
+        }
+    }
+    // Czyścimy przyciski wewnątrz kontenera
+    foreach (Transform child in choicesContainer.transform) {
+        Destroy(child.gameObject);
+    }
+}
 
 	[SerializeField]
 	private TextAsset inkJSONAsset = null;
