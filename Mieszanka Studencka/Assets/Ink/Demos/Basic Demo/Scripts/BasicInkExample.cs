@@ -20,6 +20,15 @@ public class BasicInkExample : MonoBehaviour {
 		RefreshView();
 	}
 	
+	void Update () {
+		if (Input.GetMouseButtonDown(0)) {
+			if (story.canContinue) {
+				RemoveChildren ();
+				DisplayNextLine();
+			}
+		}
+	}
+
 	// This is the main function called every time the story changes. It does a few things:
 	// Destroys all the old content and choices.
 	// Continues over all the lines of text, then displays all the choices. If there are no choices, the story is finished!
@@ -28,13 +37,8 @@ public class BasicInkExample : MonoBehaviour {
 		RemoveChildren ();
 		
 		// Read all the content until we can't continue any more
-		while (story.canContinue) {
-			// Continue gets the next line of the story
-			string text = story.Continue ();
-			// This removes any white space from the text.
-			text = text.Trim();
-			// Display the text on screen!
-			CreateContentView(text);
+		if (story.canContinue) {
+			DisplayNextLine();
 		}
 
 		// Display all the choices, if there are any!
@@ -49,12 +53,17 @@ public class BasicInkExample : MonoBehaviour {
 			}
 		}
 		// If we've read all the content and there's no choices, the story is finished!
-		else {
-			Button choice = CreateChoiceView("End of story.\nRestart?");
-			choice.onClick.AddListener(delegate{
-				StartStory();
-			});
-		}
+		// else {
+		// 	Button choice = CreateChoiceView("End of story.\nRestart?");
+		// 	choice.onClick.AddListener(delegate{
+		// 		StartStory();
+		// 	});
+		// }
+	}
+
+	void DisplayNextLine () {
+		string text = story.Continue(); // Pobierz tylko JEDNĄ kolejną linię
+    	CreateContentView(text);       // Wyświetl ją
 	}
 
 	// When we click the choice button, tell the story to choose that choice!
