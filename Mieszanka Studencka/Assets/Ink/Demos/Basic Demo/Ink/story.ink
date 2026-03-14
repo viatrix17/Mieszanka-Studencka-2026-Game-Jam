@@ -1,6 +1,6 @@
-- I looked at Monsieur Fogg.
-- He was deep in thought.
-- I wanted to say something
+I looked at Monsieur Fogg.
+He was deep in thought.
+I wanted to say something
 *   ... and I could contain myself no longer.
     'What is the purpose of our journey, Monsieur?'
     'A wager,' he replied.
@@ -17,5 +17,5 @@
     * *     'Ah[.'],' I replied, uncertain what I thought.
     - -     After that, <>
 *   ... but I said nothing[] and <>
-- we passed the day in silence.
-- -> END
+we passed the day in silence.
+-> END
