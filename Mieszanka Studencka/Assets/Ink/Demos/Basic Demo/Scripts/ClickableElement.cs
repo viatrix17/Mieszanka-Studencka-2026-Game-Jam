@@ -1,3 +1,4 @@
+using System.Reflection.Emit;
 using UnityEngine;
 
 public class ClickableItem : MonoBehaviour {
@@ -6,12 +7,21 @@ public class ClickableItem : MonoBehaviour {
     public string objectName;
     public bool isChecked = false;
 
+    public CinemaController cinemaController;
+    
     void OnMouseDown() {
         Debug.Log("Interactive Element Clicked");
         if (dialogueSystem != null) {
             isChecked = true;
-            dialogueSystem.CheckProgress();
             dialogueSystem.LoadStoryAtKnot(myKnotName);
+            if (objectName == "ArrowKitchen")
+            {
+                cinemaController.PlayVideoByLabel("Kitchen");
+            }
+            if (objectName == "ArrowLivingRoom")
+            {
+                cinemaController.PlayVideoByLabel("LivingRoom");
+            }
         }
     }
 }

@@ -8,11 +8,21 @@ using System.Collections.Generic; // To musi być na samej górze!
 // This is a super bare bones example of how to play and display a ink story in Unity.
 public class BasicInkExample : MonoBehaviour {
     public static event Action<Story> OnCreateStory;
-	private bool choicesShown = false;
 	public GameObject dialogueBox;
 	public GameObject choicesContainer; 
+	public CinemaController cinemaController;
+
 	private bool clickedThisFrame = false;
+	private bool choicesShown = false;
+	private bool isWaiting = false;
+
 	public List<ClickableItem> allActiveItems = new List<ClickableItem>();
+
+	public enum StoryMode { Manual, Cutscene }
+	public StoryMode currentMode = StoryMode.Manual;
+
+	public float cutsceneDelay = 5.0f;
+	
 
     void Awake () {
 		// GameObject[] scenesToHide = GameObject.FindGameObjectsWithTag("InteractiveElements");
@@ -34,11 +44,14 @@ public class BasicInkExample : MonoBehaviour {
 		story.BindExternalFunction("hideObjects", (string name) => {
             ManageObject(name, false);
         });
+
+		
         if(OnCreateStory != null) OnCreateStory(story);
 		AdvanceStory();
 	}
 	
 	void Update() {	
+		if (currentMode == StoryMode.Cutscene) return;
 		if (Input.GetMouseButtonDown(0)) {
 			Debug.Log("Kliknięcie wykryte! canContinue: " + story.canContinue); 
 			if (clickedThisFrame) return;
@@ -74,13 +87,68 @@ public class BasicInkExample : MonoBehaviour {
     }
 
 	void AdvanceStory() {
+		if (isWaiting) return;
+		isWaiting = false;
+		StopAllCoroutines();
+
 		dialogueBox.SetActive(true);
     	RemoveChildren();
     	choicesShown = false;
-    
-    	string text = story.Continue().Trim();
-    	CreateContentView(text);
+		if (currentMode == StoryMode.Cutscene) {
+			StartCoroutine(CutsceneRoutine());
+		}
+		else {
+	    	string text = story.Continue().Trim();
+    		CreateContentView(text);
+		}
+		foreach (string tag in story.currentTags)
+		{
+			if(tag=="break_loop")
+			{
+				cinemaController.BreakLoopAndContinue();
+			}
+			if(tag=="go_park")
+			{
+				cinemaController.BreakLoopAndContinue();
+				cinemaController.PlayVideoByLabel("Park");
+			}
+			if(tag=="go_church")
+			{
+				cinemaController.BreakLoopAndContinue();
+				cinemaController.PlayVideoByLabel("Church");
+			}
+		}
+		
 	}
+
+public void RefreshDialogue() {
+    if (story != null && story.canContinue) {
+        RemoveChildren();
+
+        string text = story.Continue().Trim();
+
+        CreateContentView(text);
+        
+        dialogueBox.SetActive(true);
+    }
+}
+	System.Collections.IEnumerator CutsceneRoutine() {
+		while(story.canContinue) {
+			RemoveChildren();
+			string text = story.Continue().Trim();
+    		CreateContentView(text);
+
+			yield return new WaitForSeconds(cutsceneDelay);
+		}
+		currentMode = StoryMode.Manual;
+		RemoveChildren();
+
+		if (story.currentChoices.Count > 0) {
+        	ShowChoices();
+    	}
+	}
+
+	
 
 	void ShowChoices() {
     	choicesShown = true;
@@ -148,7 +216,7 @@ public class BasicInkExample : MonoBehaviour {
 			clickedThisFrame = true;
             dialogueBox.SetActive(true);
             story.ChoosePathString(knotName);
-            AdvanceStory();
+            RefreshDialogue();
         } else {
             Debug.LogError("Błąd: Story nie jest zainicjalizowane!");
         }
@@ -162,25 +230,11 @@ public class BasicInkExample : MonoBehaviour {
     	Debug.Log("Znaleziono interaktywnych przedmiotów: " + allActiveItems.Count);
 	}
 
-	public void CheckProgress() {
-		bool allDone = true;
-		foreach (var item in allActiveItems) {
-			if(!item.isChecked) {
-				allDone = false;
-				break;
-			}
-		}
-		if (allDone) {
-			story.variablesState["all_checked"] = true;
-		}
-	}
+	
 
 	[SerializeField]
 	private TextAsset inkJSONAsset = null;
 	public Story story;
-
-	[SerializeField]
-	public bool cutScene = false;
 
 	[SerializeField]
 	private Canvas canvas = null;
